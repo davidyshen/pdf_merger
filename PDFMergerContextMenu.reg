@@ -1,0 +1,13 @@
+;Registry file for PDF Merger context menu integration
+;Save as: PDFMergerContextMenu.reg
+;Run from command prompt: regedit /s PDFMergerContextMenu.reg
+
+Windows Registry Editor Version 5.00
+
+[HKEY_CURRENT_USER\Software\Classes\*\shell\MergePDFs]
+@="Merge PDFs"
+"MUIVerb"="Merge PDFs"
+"Icon"="C:\\Program Files\\PDFMerger\\PDFMerger.exe,0"
+
+[HKEY_CURRENT_USER\Software\Classes\*\shell\MergePDFs\command]
+@="\"C:\\Program Files\\PDFMerger\\PDFMerger.exe\" \"%%1\""

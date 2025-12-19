@@ -1,0 +1,18 @@
+# Build results
+bin/
+obj/
+x64/
+x86/
+.vs/
+
+# Visual Studio cache/options
+.vscode/
+*.user
+*.suo
+*.userosscache
+
+# Local package cache
+.nuget/
+
+# NuGet Lock files
+packages.lock.json
