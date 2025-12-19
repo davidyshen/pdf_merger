@@ -62,7 +62,7 @@
                       CanDragItems="True">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="viewmodels:PDFItem">
-                        <Grid Padding="10">
+                        <Grid Padding="12,16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="Auto"/>
@@ -72,48 +72,61 @@
 
                             <!-- Drag Handle -->
                             <FontIcon Glyph="&#xE76F;"
-                                      FontSize="12"
+                                      FontSize="16"
                                       Foreground="Gray"
                                       VerticalAlignment="Center"
-                                      Margin="0,0,12,0"/>
+                                      Margin="0,0,16,0"/>
 
-                            <FontIcon Grid.Column="1"
-                                      Glyph="&#xE150;"
-                                      VerticalAlignment="Center"
-                                      Margin="0,0,12,0"/>
+                            <Grid Grid.Column="1"
+                                  Width="80"
+                                  Height="112"
+                                  Margin="0,0,20,0"
+                                  Background="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                  CornerRadius="4">
+                                <FontIcon Glyph="&#xE150;"
+                                          FontSize="24"
+                                          VerticalAlignment="Center"
+                                          HorizontalAlignment="Center"
+                                          Opacity="0.3"/>
+                                <Image Source="{x:Bind ThumbnailImage, Mode=OneWay}"
+                                       Stretch="UniformToFill"/>
+                            </Grid>
 
                             <StackPanel Grid.Column="2"
-                                        VerticalAlignment="Center">
+                                        VerticalAlignment="Center"
+                                        Spacing="4">
                                 <TextBlock Text="{x:Bind FileName}"
-                                           FontWeight="Bold"/>
+                                           FontSize="16"
+                                           FontWeight="SemiBold"/>
                                 <TextBlock Text="{x:Bind FilePath}"
-                                           FontSize="12"
-                                           Foreground="Gray"/>
+                                           FontSize="13"
+                                           Foreground="Gray"
+                                           TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
 
                             <!-- Up/Down Buttons -->
                             <StackPanel Grid.Column="3"
                                         Orientation="Horizontal"
-                                        Spacing="4"
+                                        Spacing="8"
                                         VerticalAlignment="Center">
                                 <Button Click="MoveUp_Click"
                                         ToolTipService.ToolTip="Move Up"
-                                        Padding="4">
+                                        Padding="8">
                                     <FontIcon Glyph="&#xE110;"
-                                              FontSize="12"/>
+                                              FontSize="14"/>
                                 </Button>
                                 <Button Click="MoveDown_Click"
                                         ToolTipService.ToolTip="Move Down"
-                                        Padding="4">
+                                        Padding="8">
                                     <FontIcon Glyph="&#xE1FD;"
-                                              FontSize="12"/>
+                                              FontSize="14"/>
                                 </Button>
                                 <Button Click="RemoveItem_Click"
                                         ToolTipService.ToolTip="Remove"
-                                        Padding="4"
+                                        Padding="8"
                                         Foreground="Red">
                                     <FontIcon Glyph="&#xE107;"
-                                              FontSize="12"/>
+                                              FontSize="14"/>
                                 </Button>
                             </StackPanel>
                         </Grid>

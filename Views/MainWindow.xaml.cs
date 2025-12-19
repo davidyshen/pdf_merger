@@ -156,17 +156,43 @@ public sealed partial class MainWindow : Window
                     _baseDirectory = Path.GetDirectoryName(filePath);
                 }
 
-                if (!_selectedFiles.Contains(filePath))
+                AddPdfItem(filePath);
+            }
+        }
+    }
+
+    private void AddPdfItem(string filePath)
+    {
+        if (_selectedFiles.Contains(filePath)) return;
+
+        _selectedFiles.Add(filePath);
+        var item = new PDFItem
+        {
+            FilePath = filePath,
+            FileName = Path.GetFileName(filePath)
+        };
+        _viewModel.PDFFiles.Add(item);
+
+        // Generate thumbnail in background without blocking the UI thread
+        Task.Run(async () =>
+        {
+            try
+            {
+                var thumbnail = await PDFService.GenerateThumbnailAsync(filePath);
+                if (thumbnail != null)
                 {
-                    _selectedFiles.Add(filePath);
-                    _viewModel.PDFFiles.Add(new PDFItem
+                    // Update the item on the UI thread
+                    this.DispatcherQueue.TryEnqueue(() =>
                     {
-                        FilePath = filePath,
-                        FileName = Path.GetFileName(filePath)
+                        item.ThumbnailData = thumbnail;
                     });
                 }
             }
-        }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to generate thumbnail for {filePath}: {ex.Message}");
+            }
+        });
     }
 
     private async void AddFilesButton_Click(object sender, RoutedEventArgs e)
@@ -185,9 +211,7 @@ public sealed partial class MainWindow : Window
                 _baseDirectory = Path.GetDirectoryName(file.Path);
             }
 
-            if (_selectedFiles.Contains(file.Path)) continue;
-            _selectedFiles.Add(file.Path);
-            _viewModel.PDFFiles.Add(new PDFItem { FilePath = file.Path, FileName = file.DisplayName });
+            AddPdfItem(file.Path);
         }
     }
 
