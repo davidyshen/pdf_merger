@@ -45,55 +45,10 @@ if ([string]::IsNullOrEmpty($Action)) {
     Write-Host "Usage: .\setup-context-menu.ps1 -Action <action>"
     Write-Host ""
     Write-Host "Actions:"
-    Write-Host "  register-modern   - Register in modern Windows 11 context menu (Top level)"
-    Write-Host "  unregister-modern - Remove from modern context menu"
     Write-Host "  register          - Register in legacy context menu (Show more options)"
     Write-Host "  unregister        - Remove from legacy context menu"
     Write-Host "  check             - Check if context menu is registered"
     Write-Host ""
-    exit 0
-}
-
-if ($Action -eq "register-modern") {
-    if (-not $isAdmin) {
-        Write-Host "Registration requires administrator privileges."
-        exit 1
-    }
-
-    Write-Host "Registering modern Windows 11 context menu..."
-    $manifestPath = Join-Path $scriptDir "AppxManifest.xml"
-    $externalLocation = Split-Path $appPath -Parent
-    
-    try {
-        Add-AppxPackage -Path $manifestPath -ExternalLocation $externalLocation -Register -ErrorAction Stop
-        Write-Host ""
-        Write-Host "✓ Modern context menu registered successfully!"
-    } catch {
-        Write-Host "✗ Failed to register modern context menu: $_"
-        exit 1
-    }
-    exit 0
-}
-
-if ($Action -eq "unregister-modern") {
-    if (-not $isAdmin) {
-        Write-Host "Unregistration requires administrator privileges."
-        exit 1
-    }
-
-    Write-Host "Unregistering modern context menu..."
-    try {
-        $package = Get-AppxPackage | Where-Object { $_.Name -eq "PDFMergerSparsePackage" }
-        if ($package) {
-            Remove-AppxPackage -Package $package.PackageFullName -ErrorAction Stop
-            Write-Host "✓ Modern context menu unregistered successfully."
-        } else {
-            Write-Host "Modern context menu was not found."
-        }
-    } catch {
-        Write-Host "✗ Failed to unregister: $_"
-        exit 1
-    }
     exit 0
 }
 
@@ -145,10 +100,7 @@ if ($Action -eq "unregister") {
 }
 
 if ($Action -eq "check") {
-    $modern = Get-AppxPackage | Where-Object { $_.Name -eq "PDFMergerSparsePackage" }
-    if ($modern) { Write-Host "✓ Modern context menu: Registered" } else { Write-Host "✗ Modern context menu: Not registered" }
-    
     $legacy = Test-Path "HKCU:\Software\Classes\*\shell\MergePDFs"
-    if ($legacy) { Write-Host "✓ Legacy context menu: Registered" } else { Write-Host "✗ Legacy context menu: Not registered" }
+    if ($legacy) { Write-Host "✓ Context menu: Registered" } else { Write-Host "✗ Context menu: Not registered" }
     exit 0
 }

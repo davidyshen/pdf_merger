@@ -47,18 +47,18 @@ See [VSCODE_SETUP.md](VSCODE_SETUP.md) for complete VS Code instructions.
 
 After installation, register the context menu integration:
 
-```bash
-PDFMerger.exe --register-context-menu
+```powershell
+.\setup-context-menu.ps1 -Action register
 ```
 
-This will add a "Merge PDFs" option to the File Explorer context menu for PDF files.
+This will add a "Merge PDFs" option to the File Explorer context menu (under "Show more options" on Windows 11).
 
 ### Unregister Context Menu
 
 To remove the context menu integration:
 
-```bash
-PDFMerger.exe --unregister-context-menu
+```powershell
+.\setup-context-menu.ps1 -Action unregister
 ```
 
 ## Usage
