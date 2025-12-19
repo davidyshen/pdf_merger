@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Runtime.CompilerServices;
+using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace PDFMerger.ViewModels;
 
@@ -11,6 +13,7 @@ public class PDFItem : INotifyPropertyChanged
     private string _filePath = string.Empty;
     private byte[]? _thumbnailData;
     private string _fileName = string.Empty;
+    private BitmapImage? _thumbnailImage;
 
     public string FilePath
     {
@@ -21,7 +24,44 @@ public class PDFItem : INotifyPropertyChanged
     public byte[]? ThumbnailData
     {
         get => _thumbnailData;
-        set => SetProperty(ref _thumbnailData, value);
+        set
+        {
+            if (SetProperty(ref _thumbnailData, value))
+            {
+                UpdateThumbnailImage();
+            }
+        }
+    }
+
+    public BitmapImage? ThumbnailImage
+    {
+        get => _thumbnailImage;
+        private set => SetProperty(ref _thumbnailImage, value);
+    }
+
+    private void UpdateThumbnailImage()
+    {
+        if (_thumbnailData == null || _thumbnailData.Length == 0)
+        {
+            ThumbnailImage = null;
+            return;
+        }
+
+        try
+        {
+            var bitmap = new BitmapImage();
+            using (var ms = new MemoryStream(_thumbnailData))
+            {
+                var stream = ms.AsRandomAccessStream();
+                bitmap.SetSource(stream);
+            }
+            ThumbnailImage = bitmap;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Bitmap error: {ex.Message}");
+            ThumbnailImage = null;
+        }
     }
 
     public string FileName
@@ -32,13 +72,15 @@ public class PDFItem : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    private void SetProperty<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
+    private bool SetProperty<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
     {
         if (!EqualityComparer<T>.Default.Equals(field, value))
         {
             field = value;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            return true;
         }
+        return false;
     }
 }
 

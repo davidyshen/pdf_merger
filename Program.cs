@@ -67,29 +67,44 @@ public class Program
         {
             try
             {
-                using var server = new NamedPipeServerStream(PipeName, PipeDirection.In);
+                // Use a new server instance for each connection
+                var server = new NamedPipeServerStream(PipeName, PipeDirection.In, NamedPipeServerStream.MaxAllowedServerInstances);
                 server.WaitForConnection();
 
-                using var reader = new StreamReader(server, Encoding.UTF8);
-                string? path = reader.ReadLine();
-                if (!string.IsNullOrEmpty(path))
+                // Handle connection in background and immediately wait for next one
+                _ = Task.Run(() =>
                 {
-                    if (_app != null)
+                    try
                     {
-                        _app.HandlePaths(new[] { path });
-                    }
-                    else
-                    {
-                        lock (_pathBuffer)
+                        using (server)
+                        using (var reader = new StreamReader(server, Encoding.UTF8))
                         {
-                            _pathBuffer.Add(path);
+                            string? path = reader.ReadLine();
+                            if (!string.IsNullOrEmpty(path))
+                            {
+                                if (_app != null)
+                                {
+                                    _app.HandlePaths(new[] { path });
+                                }
+                                else
+                                {
+                                    lock (_pathBuffer)
+                                    {
+                                        _pathBuffer.Add(path);
+                                    }
+                                }
+                            }
                         }
                     }
-                }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Pipe connection error: {ex.Message}");
+                    }
+                });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Ignore pipe errors and restart listener
+                System.Diagnostics.Debug.WriteLine($"Pipe server error: {ex.Message}");
                 Thread.Sleep(100);
             }
         }
@@ -99,18 +114,24 @@ public class Program
     {
         foreach (var path in paths)
         {
-            try
+            // Retry logic to handle cases where the main instance is still starting up
+            bool sent = false;
+            for (int i = 0; i < 20 && !sent; i++)
             {
-                using var client = new NamedPipeClientStream(".", PipeName, PipeDirection.Out);
-                client.Connect(500); // Short timeout
+                try
+                {
+                    using var client = new NamedPipeClientStream(".", PipeName, PipeDirection.Out);
+                    client.Connect(500); // 0.5s timeout per attempt
 
-                using var writer = new StreamWriter(client, Encoding.UTF8);
-                writer.WriteLine(path);
-                writer.Flush();
-            }
-            catch (Exception)
-            {
-                // Failed to send, nothing we can do
+                    using var writer = new StreamWriter(client, Encoding.UTF8);
+                    writer.WriteLine(path);
+                    writer.Flush();
+                    sent = true;
+                }
+                catch (Exception)
+                {
+                    Thread.Sleep(100);
+                }
             }
         }
     }

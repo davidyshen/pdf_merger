@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Threading.Tasks;
 using iText.Kernel.Pdf;
-using iText.Kernel.Pdf.Canvas;
 using iText.Kernel.Utils;
-using Microsoft.UI.Xaml.Media.Imaging;
-using PDFMerger.ViewModels;
+using Windows.Data.Pdf;
+using Windows.Storage;
+using Windows.Storage.Streams;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace PDFMerger.Services;
 
@@ -17,38 +16,44 @@ public class PDFService
     /// <summary>
     /// Generates a thumbnail of the first page of a PDF file
     /// </summary>
-    public static async Task<byte[]?> GenerateThumbnailAsync(string filePath, int width = 200, int height = 280)
+    public static async Task<byte[]?> GenerateThumbnailAsync(string filePath, uint width = 200)
     {
-        return await Task.Run(() =>
+        try
         {
-            try
+            if (!File.Exists(filePath)) return null;
+
+            // Use FileStream to avoid StorageFile permission issues in unpackaged apps
+            using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            using var randomAccessStream = fileStream.AsRandomAccessStream();
+
+            var pdfDoc = await Windows.Data.Pdf.PdfDocument.LoadFromStreamAsync(randomAccessStream);
+
+            if (pdfDoc.PageCount == 0) return null;
+
+            using var page = pdfDoc.GetPage(0);
+
+            using var outputStream = new InMemoryRandomAccessStream();
+
+            var options = new PdfPageRenderOptions
             {
-                using var pdfDocument = new PdfDocument(new PdfReader(filePath));
+                DestinationWidth = width
+            };
 
-                if (pdfDocument.GetNumberOfPages() == 0)
-                    return null;
+            await page.RenderToStreamAsync(outputStream, options);
 
-                var firstPage = pdfDocument.GetPage(1);
-                var pageSize = firstPage.GetPageSize();
+            if (outputStream.Size == 0) return null;
 
-                // Create a bitmap to render the PDF page
-                var bitmap = new Bitmap(width, height);
-                using (var graphics = Graphics.FromImage(bitmap))
-                {
-                    graphics.Clear(Color.White);
-                    graphics.DrawString("PDF Preview", new Font("Arial", 10), Brushes.Black, 10, 10);
-                    graphics.DrawString(Path.GetFileName(filePath), new Font("Arial", 8), Brushes.Gray, 10, 30);
-                }
+            var buffer = new byte[outputStream.Size];
+            outputStream.Seek(0);
+            await outputStream.ReadAsync(buffer.AsBuffer(), (uint)outputStream.Size, InputStreamOptions.None);
 
-                using var ms = new MemoryStream();
-                bitmap.Save(ms, ImageFormat.Png);
-                return ms.ToArray();
-            }
-            catch
-            {
-                return null;
-            }
-        });
+            return buffer;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Thumbnail error for {filePath}: {ex.Message}");
+            return null;
+        }
     }
 
     /// <summary>
@@ -70,7 +75,7 @@ public class PDFService
                 using (var writer = new PdfWriter(outputPath))
                 {
                     writer.SetSmartMode(true);
-                    using (var outputDocument = new PdfDocument(writer))
+                    using (var outputDocument = new iText.Kernel.Pdf.PdfDocument(writer))
                     {
                         var merger = new PdfMerger(outputDocument);
 
@@ -87,7 +92,7 @@ public class PDFService
                                 {
                                     using (var reader = new PdfReader(fs))
                                     {
-                                        using (var sourceDocument = new PdfDocument(reader))
+                                        using (var sourceDocument = new iText.Kernel.Pdf.PdfDocument(reader))
                                         {
                                             merger.Merge(sourceDocument, 1, sourceDocument.GetNumberOfPages());
                                         }
@@ -137,7 +142,7 @@ public class PDFService
     {
         try
         {
-            using var pdf = new PdfDocument(new PdfReader(filePath));
+            using var pdf = new iText.Kernel.Pdf.PdfDocument(new PdfReader(filePath));
             return pdf.GetNumberOfPages() > 0;
         }
         catch
