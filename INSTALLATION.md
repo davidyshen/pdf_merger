@@ -51,25 +51,30 @@ Before installing PDF Merger, ensure you have:
    .\setup-context-menu.ps1 -Action register
    ```
 
-**Option C: Manual Registry Entry**
+### Method 2: WiX Installer (.msi) - Recommended
 
-1. Download and save `PDFMergerContextMenu.reg` file
-2. Edit the file and update the paths to match your installation location
-3. Double-click the `.reg` file to import into the registry
-4. Click "Yes" to confirm
+1. Download the `PDFMerger.msi` (if provided) or build it using the `installer.wxs` script with the **WiX Toolset**:
 
-**Option D: Using the Application**
-
-1. Open Command Prompt as Administrator
-2. Run:
-
-   ```batch
-   "C:\Program Files\PDFMerger\PDFMerger.exe" --register-context-menu
+   ```powershell
+   wix extension add WixToolset.UI.wixext
+   wix build installer.wxs -o PDFMerger.msi -ext WixToolset.UI.wixext
    ```
 
-### Method 2: MSIX Package Installation
+2. Run the installer.
+3. The installer will automatically:
+   - Install the app to `C:\Program Files\PDFMerger\`
+   - Create a Start menu shortcut.
+   - Register the "Merge PDFs" context menu.
 
-*Coming soon - will allow installation via Microsoft Store*
+### Method 3: Portable / Manual Installation
+
+1. Copy the application folder to your desired location.
+2. **Automatic Registration**: Simply run `PDFMerger.exe` once. The app will automatically detect if the context menu is missing and register it for you.
+3. Alternatively, you can use the PowerShell script:
+
+   ```powershell
+   .\setup-context-menu.ps1 -Action register
+   ```
 
 ## Verification
 
@@ -77,8 +82,8 @@ To verify the installation was successful:
 
 1. Open File Explorer
 2. Select multiple PDF files
-3. Right-click and look for "Merge PDFs" option in the context menu
-4. Click to launch the merger window
+3. Right-click and look for "Merge PDFs" option in the context menu (on Windows 11, this may be under "Show more options").
+4. Click to launch the merger window.
 
 ### Troubleshooting Context Menu
 
@@ -88,16 +93,12 @@ If "Merge PDFs" doesn't appear in the context menu:
 
 1. Press `Win + R` and type `regedit`
 2. Navigate to:
+   `HKEY_CURRENT_USER\Software\Classes\*\shell\MergePDFs`
+3. Ensure the entry exists with the correct path to `PDFMerger.exe`.
 
-   ```
-   HKEY_CURRENT_USER\Software\Classes\*\shell\MergePDFs
-   ```
+#### Check 2: Run the App Once
 
-3. Ensure the entry exists with the correct path to `PDFMerger.exe`
-
-#### Check 2: Run as Administrator
-
-Some registry operations require administrator privileges:
+The app is designed to self-register on startup. If the menu is missing, simply double-click `PDFMerger.exe` to trigger the registration.
 
 1. Open Command Prompt as Administrator
 2. Run the registration command again:

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.Windows.AppLifecycle;
+using PDFMerger.Services;
 
 namespace PDFMerger;
 
@@ -22,6 +23,9 @@ public class Program
     static void Main(string[] args)
     {
         WinRT.ComWrappersSupport.InitializeComWrappers();
+
+        // Automatically register context menu on startup
+        ShellService.RegisterContextMenu();
 
         AppInstance keyInstance = AppInstance.FindOrRegisterForKey("PDFMergerSingleInstanceKey");
 

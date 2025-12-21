@@ -13,10 +13,10 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 # Try multiple locations for the executable
 $possiblePaths = @(
     (Join-Path $scriptDir "PDFMerger.exe"),
+    (Join-Path $scriptDir "publish\PDFMerger.exe"),
+    (Join-Path $scriptDir "bin\ARM64\Release\net8.0-windows10.0.22621.0\win-arm64\publish\PDFMerger.exe"),
     (Join-Path $scriptDir "bin\ARM64\Debug\net8.0-windows10.0.22621.0\win-arm64\PDFMerger.exe"),
-    (Join-Path $scriptDir "bin\x64\Debug\net8.0-windows10.0.22621.0\win-x64\PDFMerger.exe"),
-    (Join-Path $scriptDir "bin\Debug\net8.0-windows10.0.22621.0\PDFMerger.exe"),
-    (Join-Path $scriptDir "bin\Release\net8.0-windows10.0.22621.0\PDFMerger.exe")
+    (Join-Path $scriptDir "bin\x64\Debug\net8.0-windows10.0.22621.0\win-x64\PDFMerger.exe")
 )
 
 $appPath = $null
