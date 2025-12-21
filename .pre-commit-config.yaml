@@ -1,0 +1,18 @@
+repos:
+  # Prevent commits to main branch
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: no-commit-to-branch
+        name: Don't commit to main
+        args: [--branch, main]
+
+  # Format C# code using dotnet format
+  - repo: local
+    hooks:
+      - id: dotnet-format
+        name: dotnet format
+        entry: dotnet format
+        language: system
+        types: [c#]
+        pass_filenames: true
