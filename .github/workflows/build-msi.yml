@@ -1,4 +1,4 @@
-name: Build WiX Installer
+name: Build and Release
 
 on:
   push:
@@ -23,35 +23,33 @@ jobs:
         with:
           dotnet-version: "8.0.x"
 
-      - name: Install WiX Toolset
-        run: |
-          dotnet tool install --global wix
-          wix extension add WixToolset.UI.wixext
-
       - name: Restore dependencies
         run: dotnet restore PDFMerger.sln
 
-      - name: Build application (Debug)
+      - name: Build application
         run: dotnet build PDFMerger.csproj -c Debug -r win-arm64
 
-      - name: Publish application (Release)
+      - name: Publish application (Release - Self-Contained)
         run: dotnet publish PDFMerger.csproj -c Release -r win-arm64 --self-contained true -p:PublishReadyToRun=true
 
-      - name: Build WiX Installer
-        run: wix build .\installer.wxs -o PDFMerger.msi -ext WixToolset.UI.wixext
+      - name: Create portable ZIP archive
+        run: |
+          $publishDir = "bin\ARM64\Release\net8.0-windows10.0.22621.0\win-arm64\publish"
+          Compress-Archive -Path "$publishDir\*" -DestinationPath "PDFMerger-portable.zip" -Force
+        shell: pwsh
 
-      - name: Upload MSI artifact
+      - name: Upload portable artifact
         uses: actions/upload-artifact@v4
         with:
-          name: PDFMerger.msi
-          path: PDFMerger.msi
+          name: PDFMerger-portable
+          path: PDFMerger-portable.zip
           if-no-files-found: error
 
       - name: Create Release (on tag)
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
-          files: PDFMerger.msi
+          files: PDFMerger-portable.zip
           draft: false
           prerelease: false
         env:
