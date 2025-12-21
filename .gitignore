@@ -4,6 +4,7 @@ obj/
 x64/
 x86/
 .vs/
+PDFMerger.msi
 
 # Visual Studio cache/options
 .vscode/
