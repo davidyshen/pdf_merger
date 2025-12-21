@@ -238,10 +238,9 @@ public sealed partial class MainWindow : Window
         string fileName = _viewModel.OutputFileName.Trim();
         if (string.IsNullOrWhiteSpace(fileName))
         {
-            fileName = "merged";
+            fileName = PDFService.GenerateDefaultFileName();
         }
-
-        if (!fileName.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
+        else if (!fileName.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
         {
             fileName += ".pdf";
         }
