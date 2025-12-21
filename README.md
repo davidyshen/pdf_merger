@@ -162,11 +162,11 @@ pdf_merger/
 │   └── MainWindowViewModel.cs   # Data binding and state management
 ├── Services/
 │   ├── PDFService.cs            # PDF merging and thumbnail generation
-│   └── ShellService.cs          # Context menu registration
+│   ├── ShellService.cs          # Context menu registration
+│   └── WindowsInterop.cs        # Windows native API interop
 ├── App.xaml                      # Application resources
 ├── App.xaml.cs                   # Application entry point
-├── Program.cs                    # Single-instance pipe server
-├── NativeMethods.cs              # Native Windows API calls
+├── Program.cs                    # Single-instance pipe server and main entry point
 ├── app.manifest                  # Windows app manifest
 ├── installer.wxs                 # WiX installer source
 └── PDFMerger.csproj             # Project configuration
@@ -200,6 +200,12 @@ pdf_merger/
 - **Self-Registration**: `RegisterContextMenu()` automatically called at startup in `Program.cs` for portable installations
 - **Dynamic Path**: Registers current executable path, allowing app to work from any location
 - **Methods**: `RegisterContextMenu()`, `UnregisterContextMenu()`, `IsRegistered()` for complete control
+
+**WindowsInterop**
+
+- **Dispatcher Queue**: `EnsureWindowsSystemDispatcherQueueServer()` manages WinUI dispatcher on UI thread
+- **Window Management**: Helper methods for window foreground, finding, and process ID operations
+- **Consolidated P/Invoke**: Combines native API declarations for cleaner codebase
 
 **Program.cs**
 

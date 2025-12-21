@@ -17,7 +17,7 @@ public sealed partial class MainWindow : Window
     private MainWindowViewModel _viewModel;
     private List<string> _selectedFiles = new();
     private string? _baseDirectory;
-    private WindowsSystemDispatcherQueueHelper? _wsdqHelper;
+    private WindowsInterop? _windowsInterop;
     private Microsoft.UI.Composition.SystemBackdrops.MicaController? _micaController;
     private Microsoft.UI.Composition.SystemBackdrops.SystemBackdropConfiguration? _configurationSource;
 
@@ -35,8 +35,8 @@ public sealed partial class MainWindow : Window
     {
         if (Microsoft.UI.Composition.SystemBackdrops.MicaController.IsSupported())
         {
-            _wsdqHelper = new WindowsSystemDispatcherQueueHelper();
-            _wsdqHelper.EnsureWindowsSystemDispatcherQueueServer();
+            _windowsInterop = new WindowsInterop();
+            _windowsInterop.EnsureWindowsSystemDispatcherQueueServer();
 
             _configurationSource = new Microsoft.UI.Composition.SystemBackdrops.SystemBackdropConfiguration();
             this.Activated += Window_Activated;
