@@ -1,6 +1,6 @@
 # PDF Merger for Windows
 
-A simple Windows application for merging PDF files with an native-looking graphical interface and native File Explorer integration.
+A simple Windows application for merging PDF files with an native-looking graphical interface and native File Explorer integration, similar to the built-in merge PDF tool on macOS.
 
 Warning: This code is entirely AI generated and may contain errors because I don't know how to write C#. Use at your own risk (or better yet, if you like the app, consider adding some human-written code yourself!).
 
