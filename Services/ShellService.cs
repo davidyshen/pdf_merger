@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.IO;
 using Microsoft.Win32;
 
 namespace PDFMerger.Services;
@@ -86,6 +87,45 @@ public static class ShellService
         catch
         {
             return false;
+        }
+    }
+
+    public static void CleanupOrphanedRegistry()
+    {
+        try
+        {
+            using (RegistryKey? key = Registry.CurrentUser.OpenSubKey(KeyPath))
+            {
+                if (key == null) return;
+
+                using (RegistryKey? commandKey = key.OpenSubKey("command"))
+                {
+                    if (commandKey == null) return;
+
+                    string? value = commandKey.GetValue("") as string;
+                    if (string.IsNullOrEmpty(value)) return;
+
+                    // Extract exe path from command (format: "path\exe.exe" "%1")
+                    // Find the first quoted path
+                    int startQuote = value.IndexOf('"');
+                    int endQuote = value.IndexOf('"', startQuote + 1);
+
+                    if (startQuote < 0 || endQuote < 0) return;
+
+                    string registeredPath = value.Substring(startQuote + 1, endQuote - startQuote - 1);
+
+                    // Check if the registered exe still exists
+                    if (!File.Exists(registeredPath))
+                    {
+                        Debug.WriteLine($"Removing orphaned registry entry: {registeredPath}");
+                        UnregisterContextMenu();
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to cleanup orphaned registry: {ex.Message}");
         }
     }
 }

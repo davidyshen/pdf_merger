@@ -24,7 +24,10 @@ public class Program
     {
         WinRT.ComWrappersSupport.InitializeComWrappers();
 
-        // Automatically register context menu on startup
+        // Cleanup orphaned registry entries from deleted exe instances
+        ShellService.CleanupOrphanedRegistry();
+
+        // Register/update context menu on startup
         ShellService.RegisterContextMenu();
 
         AppInstance keyInstance = AppInstance.FindOrRegisterForKey("PDFMergerSingleInstanceKey");

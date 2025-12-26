@@ -2,6 +2,10 @@
 
 A simple Windows application for merging PDF files with a native-looking graphical interface and Windows File Explorer integration.
 
+A simple Windows application for merging PDF files with an native-looking graphical interface and native File Explorer integration, similar to the built-in merge PDF tool on macOS.
+
+Warning: This code is entirely AI generated and may contain errors because I don't know how to write C#. Use at your own risk (or better yet, if you like the app, consider adding some human-written code yourself!).
+
 ## Features
 
 - **File Explorer Integration**: Right-click context menu to merge PDFs directly from File Explorer
@@ -31,7 +35,7 @@ A simple Windows application for merging PDF files with a native-looking graphic
 3. **Run** `PDFMerger.exe`
 4. **Context menu registers automatically** on first run
 
-### That's it!
+### That's it
 
 The app will automatically register the "Merge PDFs" option in your File Explorer right-click menu. No installation wizard, no administrator prompts, no dependencies to install.
 
@@ -59,6 +63,7 @@ The app will automatically register the "Merge PDFs" option in your File Explore
 ### Direct Launch
 
 Double-click `PDFMerger.exe` to open an empty window where you can:
+
 - Add PDFs via drag-and-drop
 - Preview thumbnails
 - Reorder before merging
@@ -122,21 +127,25 @@ pdf_merger/
 ### Key Components
 
 **ShellService.cs**
+
 - Auto-registers "Merge PDFs" context menu on startup
 - Uses HKCU registry (no admin rights needed)
 - Checks if already registered to avoid redundant registration
 
 **PDFService.cs**
+
 - Merges PDFs using iText7
 - Generates thumbnails (first page preview)
 - Auto-generates timestamp-based filenames
 
 **Program.cs**
+
 - Single-instance enforcement via AppInstance
 - IPC with Named Pipes for secondary launches
 - Auto-calls ShellService.RegisterContextMenu()
 
 **WindowsInterop.cs**
+
 - Consolidated Windows native API declarations
 - Dispatcher queue management for WinUI
 
@@ -168,6 +177,7 @@ dotnet run --project PDFMerger.csproj --configuration Debug --runtimeIdentifier 
 ## Releases & Deployment
 
 GitHub Actions automatically:
+
 1. Builds Release version on tags (e.g., `v1.0.2`)
 2. Creates portable ZIP archive
 3. Uploads to GitHub Releases
@@ -192,6 +202,7 @@ GitHub Actions will build and upload `PDFMerger-portable.zip` automatically.
 2. **Re-register**: Launch `PDFMerger.exe` again - it auto-registers on startup
 
 3. **Manually check registry**:
+
    ```powershell
    reg query HKCU\Software\Classes\*\shell\MergePDFs
    ```
